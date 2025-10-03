@@ -35,9 +35,8 @@
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 h-full">
             
             <!-- Rain Map -->
-            <div class="rounded-lg shadow-lg overflow-hidden flex flex-col lg:col-span-2">
-                <h2 class="text-lg font-semibold text-white bg-blue-600 p-2 text-center">Rainfall (Next hour)</h2>
-                <div class="map-container flex-grow">
+            <div class="rounded-lg shadow-lg overflow-hidden relative lg:col-span-2">
+                <div class="map-container h-full">
                     <iframe 
                         src="https://embed.ventusky.com/?p=53.5;-4.5;5&l=rain-1h" 
                         class="w-full h-full border-0" 
@@ -45,12 +44,12 @@
                         title="Ventusky Rainfall Map for UK & Ireland">
                     </iframe>
                 </div>
+                <h2 class="absolute top-0 left-0 right-0 text-lg font-semibold text-white bg-blue-900/50 p-2 text-center z-10">Rainfall (Next hour)</h2>
             </div>
 
             <!-- Wind Map -->
-            <div class="rounded-lg shadow-lg overflow-hidden flex flex-col lg:col-span-2">
-                <h2 class="text-lg font-semibold text-white bg-green-600 p-2 text-center">Wind Speed (10m)</h2>
-                <div class="map-container flex-grow">
+            <div class="rounded-lg shadow-lg overflow-hidden relative lg:col-span-2">
+                <div class="map-container h-full">
                      <iframe 
                         src="https://embed.ventusky.com/?p=53.5;-4.5;5&l=wind-10m" 
                         class="w-full h-full border-0" 
@@ -58,6 +57,7 @@
                         title="Ventusky Wind Speed Map for UK & Ireland">
                     </iframe>
                 </div>
+                <h2 class="absolute top-0 left-0 right-0 text-lg font-semibold text-white bg-green-900/50 p-2 text-center z-10">Wind Speed (10m)</h2>
             </div>
 
             <!-- Information Column -->
@@ -73,13 +73,16 @@
                     <!-- Bottom 1/3 for the ducting map -->
                     <div class="flex flex-col flex-grow-[1]">
                          <h3 class="text-md font-semibold text-gray-800 mb-2 text-center">Tropospheric Ducting Forecast</h3>
-                         <div class="flex-grow rounded border overflow-hidden" 
-                              style="background-image: url('https://www.dxinfocentre.com/tr_map/fcst/nwe006.png'); background-size: 250%; background-position: 25% 25%; background-repeat: no-repeat;"
+                         <div class="flex-grow rounded-t border-t border-l border-r overflow-hidden" 
+                              style="background-image: url('https://www.dxinfocentre.com/tr_map/fcst/nwe006.png'); background-size: 190%; background-position: 30% 65%; background-repeat: no-repeat;"
                               role="img"
                               aria-label="Tropospheric Ducting Map for North-West Europe, cropped to UK and Ireland">
-                            <!-- The image is now a background of this div, allowing for a reliable crop -->
                          </div>
-                         <p class="text-xs text-gray-500 mt-1 text-center">Source: dxinfocentre.com</p>
+                         <div class="h-6 rounded-b border-b border-l border-r overflow-hidden" 
+                              style="background-image: url('https://www.dxinfocentre.com/tr_map/fcst/nwe006.png'); background-size: 190%; background-position: 79% 0%; background-repeat: no-repeat;"
+                              role="img"
+                              aria-label="Tropospheric Ducting Map Datestamp">
+                         </div>
                     </div>
                 </div>
             </div>
@@ -87,14 +90,8 @@
         </div>
     </main>
     
-    <!-- Placeholder for future JavaScript interaction -->
     <script>
         // Note: Direct manipulation of iframe content from a different origin is blocked by browser security policies.
-        // A potential future approach to show custom data would be to:
-        // 1. Create absolutely positioned HTML elements (divs, icons).
-        // 2. Overlay these elements on top of the map iframes.
-        // 3. Use JavaScript to calculate their positions based on geographic coordinates
-        //    and the current map view (this part is complex and may require a more advanced mapping library).
         console.log("Weather map page loaded.");
     </script>
 
