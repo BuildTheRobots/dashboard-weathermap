@@ -14,15 +14,40 @@
             padding: 0;
             background-color: #f0f4f8; /* A light grey-blue background */
             font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Prevent scrolling */
+        }
+        /* Make header float */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            transition: transform 0.3s ease-in-out;
+        }
+        /* Class to hide the header */
+        .header-hidden {
+            transform: translateY(-100%);
+        }
+        /* Invisible trigger area for the header */
+        #header-trigger {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40px; /* A thin trigger area at the top */
+            z-index: 49;
         }
         .map-container, .info-container {
-            /* Full viewport height minus header height and some padding. Reduced subtracted value to make containers taller. */
-            height: calc(100vh - 80px); 
+            /* Full viewport height for maximum space */
+            height: 100vh; 
             min-height: 500px; /* Ensure a minimum height */
         }
     </style>
 </head>
 <body class="flex flex-col">
+
+    <div id="header-trigger"></div>
 
     <!-- Header -->
     <header class="bg-white shadow-md w-full p-4">
@@ -31,11 +56,11 @@
     </header>
 
     <!-- Main Content with Maps and Info Panel -->
-    <main class="flex-grow p-4">
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 h-full">
+    <main class="flex-grow">
+        <div class="grid grid-cols-1 lg:grid-cols-5 h-full">
             
             <!-- Rain Map -->
-            <div class="rounded-lg shadow-lg overflow-hidden relative lg:col-span-2">
+            <div class="shadow-lg overflow-hidden relative lg:col-span-2">
                 <div class="map-container h-full">
                     <iframe 
                         src="https://embed.ventusky.com/?p=53.5;-4.5;5&l=rain-1h" 
@@ -48,7 +73,7 @@
             </div>
 
             <!-- Wind Map -->
-            <div class="rounded-lg shadow-lg overflow-hidden relative lg:col-span-2">
+            <div class="shadow-lg overflow-hidden relative lg:col-span-2">
                 <div class="map-container h-full">
                      <iframe 
                         src="https://embed.ventusky.com/?p=53.5;-4.5;5&l=wind-10m" 
@@ -61,7 +86,7 @@
             </div>
 
             <!-- Information Column -->
-            <div class="rounded-lg shadow-lg overflow-hidden flex flex-col bg-white info-container lg:col-span-1">
+            <div class="shadow-lg overflow-hidden flex flex-col bg-white info-container lg:col-span-1">
                 <h2 class="text-lg font-semibold text-white bg-purple-600 p-2 text-center">Analysis & Forecasts</h2>
                 <div class="p-4 flex flex-col flex-grow">
                     
@@ -91,7 +116,26 @@
     </main>
     
     <script>
-        // Note: Direct manipulation of iframe content from a different origin is blocked by browser security policies.
+        const header = document.querySelector('header');
+        const headerTrigger = document.getElementById('header-trigger');
+
+        // Hide header after 10 seconds on initial load
+        const initialHideTimeout = setTimeout(() => {
+            header.classList.add('header-hidden');
+        }, 10000);
+
+        // Show header when mouse enters the trigger zone at the top
+        headerTrigger.addEventListener('mouseenter', () => {
+            header.classList.remove('header-hidden');
+            // Once manually revealed, we stop the initial hide timer if it hasn't fired yet
+            clearTimeout(initialHideTimeout);
+        });
+
+        // Hide header again when mouse leaves the header area itself
+        header.addEventListener('mouseleave', () => {
+            header.classList.add('header-hidden');
+        });
+
         console.log("Weather map page loaded.");
     </script>
 
