@@ -39,9 +39,9 @@
             z-index: 49;
         }
         .map-container, .info-container {
-            /* Full viewport height for maximum space */
-            height: 100vh; 
-            min-height: 500px; /* Ensure a minimum height */
+            /* Full viewport height plus 40px to hide the bottom bar */
+            height: calc(100vh + 40px); 
+            min-height: 540px; /* Ensure a minimum height, adjusted */
         }
     </style>
 </head>
@@ -63,7 +63,7 @@
             <div class="shadow-lg overflow-hidden relative lg:col-span-2">
                 <div class="map-container h-full">
                     <iframe 
-                        src="https://embed.ventusky.com/?p=55.1;-4;5&l=rain-1h" 
+                        src="https://embed.ventusky.com/?p=55.2;-4;5&l=rain-1h" 
                         class="w-full h-full border-0" 
                         frameborder="0"
                         title="Ventusky Rainfall Map for UK & Ireland">
@@ -76,7 +76,7 @@
             <div class="shadow-lg overflow-hidden relative lg:col-span-2">
                 <div class="map-container h-full">
                      <iframe 
-                        src="https://embed.ventusky.com/?p=53.5;-4.5;5&l=wind-10m" 
+                        src="https://embed.ventusky.com/?p=55.2;-4;5&l=wind-10m" 
                         class="w-full h-full border-0" 
                         frameborder="0"
                         title="Ventusky Wind Speed Map for UK & Ireland">
