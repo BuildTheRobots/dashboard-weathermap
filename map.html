@@ -88,7 +88,7 @@
             <div class="shadow-lg overflow-hidden relative lg:col-span-2 ring-4 ring-green-900/50">
                 <div id="wind-carousel" class="relative w-full h-full transition-transform duration-700 ease-in-out">
                     <!-- Slide 1: Wind Speed -->
-                    <div class="absolute w-full h-full">
+                    <div class="absolute w-full h-full" style="top: 0%;">
                         <div class="map-container h-full">
                              <iframe 
                                 src="https://embed.ventusky.com/?p=55.2;-4.0;5&l=wind-10m" 
@@ -100,7 +100,7 @@
                         <h2 class="absolute top-0 left-0 right-0 text-lg font-semibold text-white bg-green-900/50 p-2 text-center z-10">Wind Speed (10m)</h2>
                     </div>
                     <!-- Slide 2: Wind Gust -->
-                    <div class="absolute w-full h-full top-full">
+                    <div class="absolute w-full h-full" style="top: 100%;">
                         <div class="map-container h-full">
                              <iframe 
                                 src="https://embed.ventusky.com/?p=55.2;-4.0;5&l=wind-gust" 
@@ -110,6 +110,18 @@
                             </iframe>
                         </div>
                         <h2 class="absolute top-0 left-0 right-0 text-lg font-semibold text-white bg-green-900/50 p-2 text-center z-10">Wind Gusts</h2>
+                    </div>
+                    <!-- Slide 3 (Clone of Slide 1 for seamless loop) -->
+                    <div class="absolute w-full h-full" style="top: 200%;">
+                        <div class="map-container h-full">
+                             <iframe 
+                                src="https://embed.ventusky.com/?p=55.2;-4.0;5&l=wind-10m" 
+                                class="w-full h-full border-0" 
+                                frameborder="0"
+                                title="Ventusky Wind Speed Map for UK & Ireland">
+                            </iframe>
+                        </div>
+                        <h2 class="absolute top-0 left-0 right-0 text-lg font-semibold text-white bg-green-900/50 p-2 text-center z-10">Wind Speed (10m)</h2>
                     </div>
                 </div>
             </div>
