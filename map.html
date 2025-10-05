@@ -84,17 +84,34 @@
                 <h2 class="absolute top-0 left-0 right-0 text-lg font-semibold text-white bg-blue-900/50 p-2 text-center z-10">Rainfall (Next hour)</h2>
             </div>
 
-            <!-- Wind Map -->
+            <!-- Wind Map Carousel -->
             <div class="shadow-lg overflow-hidden relative lg:col-span-2 ring-4 ring-green-900/50">
-                <div class="map-container h-full">
-                     <iframe 
-                        src="https://embed.ventusky.com/?p=55.2;-4.0;5&l=wind-10m" 
-                        class="w-full h-full border-0" 
-                        frameborder="0"
-                        title="Ventusky Wind Speed Map for UK & Ireland">
-                    </iframe>
+                <div id="wind-carousel" class="relative w-full h-full transition-transform duration-700 ease-in-out">
+                    <!-- Slide 1: Wind Speed -->
+                    <div class="absolute w-full h-full">
+                        <div class="map-container h-full">
+                             <iframe 
+                                src="https://embed.ventusky.com/?p=55.2;-4.0;5&l=wind-10m" 
+                                class="w-full h-full border-0" 
+                                frameborder="0"
+                                title="Ventusky Wind Speed Map for UK & Ireland">
+                            </iframe>
+                        </div>
+                        <h2 class="absolute top-0 left-0 right-0 text-lg font-semibold text-white bg-green-900/50 p-2 text-center z-10">Wind Speed (10m)</h2>
+                    </div>
+                    <!-- Slide 2: Wind Gust -->
+                    <div class="absolute w-full h-full top-full">
+                        <div class="map-container h-full">
+                             <iframe 
+                                src="https://embed.ventusky.com/?p=55.2;-4.0;5&l=wind-gust" 
+                                class="w-full h-full border-0" 
+                                frameborder="0"
+                                title="Ventusky Wind Gust Map for UK & Ireland">
+                            </iframe>
+                        </div>
+                        <h2 class="absolute top-0 left-0 right-0 text-lg font-semibold text-white bg-green-900/50 p-2 text-center z-10">Wind Gusts</h2>
+                    </div>
                 </div>
-                <h2 class="absolute top-0 left-0 right-0 text-lg font-semibold text-white bg-green-900/50 p-2 text-center z-10">Wind Speed (10m)</h2>
             </div>
 
             <!-- Information Column -->
@@ -211,6 +228,25 @@
         // Fetch warnings on page load and then every 15 minutes
         fetchWeatherWarnings();
         setInterval(fetchWeatherWarnings, 15 * 60 * 1000);
+
+        // Wind Map Carousel Logic
+        function setupWindCarousel() {
+            const carousel = document.getElementById('wind-carousel');
+            if (!carousel) return; // Guard against element not found
+            let isShowingGusts = false;
+
+            setInterval(() => {
+                isShowingGusts = !isShowingGusts;
+                if (isShowingGusts) {
+                    carousel.style.transform = 'translateY(-100%)';
+                } else {
+                    carousel.style.transform = 'translateY(0)';
+                }
+            }, 30000); // 30 seconds
+        }
+
+        // Start the wind carousel
+        setupWindCarousel();
 
     </script>
 
