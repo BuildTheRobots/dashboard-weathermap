@@ -63,7 +63,7 @@
 
     <header class="bg-white shadow-md w-full p-4">
         <h1 class="text-2xl font-bold text-gray-800 text-center">Live UK & Ireland Weather & Analysis</h1>
-        <p class="text-center text-gray-500">Dynamic Weather Map Dashboard</p>
+        <p class="text-center text-gray-500">Dynamic Weather Map Dashboard - v<span id="version-display">1.0.0</span></p>
         
         <!-- Settings Panel -->
         <div id="settings-panel" class="mt-4 p-4 border-t border-gray-200 text-sm">
@@ -133,7 +133,9 @@
     <script>
         // --- APP LOGIC ---
         const App = {
+            TRANSITION_DURATION: 700, // ms, matches CSS transition
             // --- DATA ---
+            version: '1.0.0',
             VENTUSKY_MAPS: {
                 // Precipitation Group (Blues/Purples)
                 'rain-1h': { label: 'Rain (1h)', color: 'blue-800' },
@@ -169,6 +171,7 @@
 
             // --- METHODS ---
             init() {
+                document.getElementById('version-display').textContent = this.version;
                 this.loadSettings();
                 this.renderSettingsUI();
                 this.renderDashboard();
@@ -179,8 +182,13 @@
 
             loadSettings() {
                 const savedSettings = localStorage.getItem('weatherMapSettings');
-                let settings = savedSettings ? JSON.parse(savedSettings) : JSON.parse(JSON.stringify(this.DEFAULT_SETTINGS));
-
+                let settings;
+                try {
+                    settings = savedSettings ? JSON.parse(savedSettings) : structuredClone(this.DEFAULT_SETTINGS);
+                } catch (e) {
+                    console.error("Failed to parse settings from localStorage, using defaults.", e);
+                    settings = structuredClone(this.DEFAULT_SETTINGS);
+                }
                 // Migration for old settings format
                 if (settings.left && Array.isArray(settings.left.maps) && settings.left.maps.length > 0 && typeof settings.left.maps[0] === 'string') {
                     settings.left.maps = settings.left.maps.map(key => ({ key }));
@@ -249,8 +257,8 @@
 
                 container.innerHTML = `
                     <div id="${colName}-map-container" class="shadow-lg overflow-hidden relative h-full border-8 border-transparent transition-colors duration-700">
-                        <div id="${colName}-frame-0" class="absolute inset-0 transition-opacity duration-700 ease-in-out" style="opacity: 0;"></div>
-                        <div id="${colName}-frame-1" class="absolute inset-0 transition-opacity duration-700 ease-in-out" style="opacity: 0;"></div>
+                        <div id="${colName}-frame-0" class="absolute inset-0 transition-opacity ease-in-out" style="opacity: 0; transition-duration: ${this.TRANSITION_DURATION}ms;"></div>
+                        <div id="${colName}-frame-1" class="absolute inset-0 transition-opacity ease-in-out" style="opacity: 0; transition-duration: ${this.TRANSITION_DURATION}ms;"></div>
                     </div>
                 `;
 
@@ -325,14 +333,14 @@
                         if (currentFrame) currentFrame.style.opacity = 0;
                         
                         setTimeout(() => {
+                            scheduleNext();
                             if (currentFrame) {
                                 currentFrame.innerHTML = '';
                             }
-                        }, 700);
-
-                        scheduleNext();
+                        }, this.TRANSITION_DURATION);
                     };
 
+                    // Use iframe.onload to ensure the map is ready before we transition to it.
                     if (iframe.dataset.loaded === 'true') {
                         transition();
                     } else {
@@ -429,4 +437,3 @@
 
 </body>
 </html>
-
