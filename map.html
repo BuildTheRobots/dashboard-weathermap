@@ -135,25 +135,34 @@
         const App = {
             // --- DATA ---
             VENTUSKY_MAPS: {
-                'rain-1h': { label: 'Rain (1h)', color: 'blue-900' },
-                'rain-3h': { label: 'Rain (3h)', color: 'blue-800' },
-                'radar': { label: 'Radar', color: 'indigo-900' },
-                'satellite': { label: 'Satellite', color: 'gray-500' },
-                'wind-10m': { label: 'Wind Speed', color: 'green-700' },
-                'wind-gust': { label: 'Wind Gusts', color: 'teal-700' },
-                'temperature-2m': { label: 'Temperature', color: 'red-600' },
-                'feels-like': { label: 'Feels Like', color: 'orange-600' },
-                'pressure': { label: 'Air Pressure', color: 'purple-700' },
-                'clouds': { label: 'Cloud Cover', color: 'gray-600' },
-                'humidity': { label: 'Humidity', color: 'cyan-600' },
-                'waves': { label: 'Waves', color: 'blue-500' },
-                'snow': { label: 'Snow Cover', color: 'light-blue-300' },
-                'cape': { label: 'Thunderstorms', color: 'yellow-600' },
-                'aqi-us': { label: 'Air Quality (AQI)', color: 'gray-700' }
+                // Precipitation Group (Blues/Purples)
+                'rain-1h': { label: 'Rain (1h)', color: 'blue-800' },
+                'rain-3h': { label: 'Rain (3h)', color: 'blue-700' },
+                'radar': { label: 'Radar', color: 'indigo-600', holdTime: '+10' },
+                'snow': { label: 'Snow Cover', color: 'sky-300' },
+                'cape': { label: 'Thunderstorms', color: 'purple-600' },
+
+                // Temperature Group (Reds/Oranges)
+                'temperature-2m': { label: 'Temperature', color: 'red-600', holdTime: '15' },
+                'feels-like': { label: 'Feels Like', color: 'orange-500' },
+
+                // Wind Group (Greens/Teals)
+                'wind-10m': { label: 'Wind Speed', color: 'green-600' },
+                'wind-gust': { label: 'Wind Gusts', color: 'teal-500' },
+
+                // Atmospheric/Other Group (Grays/Cyans)
+                'pressure': { label: 'Air Pressure', color: 'rose-400' },
+                'clouds': { label: 'Cloud Cover', color: 'slate-400' },
+                'satellite': { label: 'Satellite', color: 'slate-500' },
+                'humidity': { label: 'Humidity', color: 'cyan-500' },
+                'aqi-us': { label: 'Air Quality (AQI)', color: 'stone-500' },
+
+                // Water Group
+                'waves': { label: 'Waves', color: 'blue-500' }
             },
             DEFAULT_SETTINGS: {
-                left: { maps: ['rain-1h'], interval: 30 },
-                right: { maps: ['wind-10m', 'wind-gust'], interval: 30 }
+                left: { maps: [{key: 'rain-1h'}], interval: 30 },
+                right: { maps: [{key: 'wind-10m'}, {key: 'wind-gust'}], interval: 30 }
             },
             settings: {},
             carouselIntervals: { left: null, right: null },
@@ -170,7 +179,17 @@
 
             loadSettings() {
                 const savedSettings = localStorage.getItem('weatherMapSettings');
-                this.settings = savedSettings ? JSON.parse(savedSettings) : JSON.parse(JSON.stringify(this.DEFAULT_SETTINGS));
+                let settings = savedSettings ? JSON.parse(savedSettings) : JSON.parse(JSON.stringify(this.DEFAULT_SETTINGS));
+
+                // Migration for old settings format
+                if (settings.left && Array.isArray(settings.left.maps) && settings.left.maps.length > 0 && typeof settings.left.maps[0] === 'string') {
+                    settings.left.maps = settings.left.maps.map(key => ({ key }));
+                }
+                if (settings.right && Array.isArray(settings.right.maps) && settings.right.maps.length > 0 && typeof settings.right.maps[0] === 'string') {
+                    settings.right.maps = settings.right.maps.map(key => ({ key }));
+                }
+
+                this.settings = settings;
             },
 
             saveSettings() {
@@ -178,23 +197,39 @@
             },
 
             renderSettingsUI() {
-                const renderCheckboxes = (containerId, selectedMaps) => {
+                const renderMapSettings = (containerId, mapsConfig) => {
                     const container = document.getElementById(containerId);
                     container.innerHTML = '';
                     for (const [key, value] of Object.entries(this.VENTUSKY_MAPS)) {
-                        const isChecked = selectedMaps.includes(key);
+                        const config = mapsConfig.find(m => m.key === key);
+                        const isChecked = !!config;
+                        const holdTime = config ? (config.holdTime || '') : '';
                         const checkboxId = `${containerId}-${key}`;
+                        const holdTimeInputId = `${containerId}-holdtime-${key}`;
+
                         container.innerHTML += `
-                            <div class="flex items-center">
-                                <input type="checkbox" id="${checkboxId}" data-map-key="${key}" class="form-checkbox h-4 w-4 text-blue-600" ${isChecked ? 'checked' : ''}>
-                                <label for="${checkboxId}" class="ml-2 text-gray-700">${value.label}</label>
+                            <div class="flex items-center justify-between mb-1" data-map-key="${key}">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="${checkboxId}" class="form-checkbox h-4 w-4 text-blue-600" ${isChecked ? 'checked' : ''}>
+                                    <label for="${checkboxId}" class="ml-2 text-gray-700">${value.label}</label>
+                                </div>
+                                <input type="text" id="${holdTimeInputId}" value="${holdTime}" placeholder="e.g. +10, 25" class="w-24 p-1 border rounded text-xs" ${!isChecked ? 'disabled' : ''}>
                             </div>
                         `;
                     }
+
+                    container.querySelectorAll('input[type=checkbox]').forEach(checkbox => {
+                        checkbox.addEventListener('change', (e) => {
+                            const parentDiv = e.target.closest('[data-map-key]');
+                            const holdTimeInput = parentDiv.querySelector('input[type=text]');
+                            holdTimeInput.disabled = !e.target.checked;
+                        });
+                    });
                 };
-                renderCheckboxes('left-maps-selection', this.settings.left.maps);
+
+                renderMapSettings('left-maps-selection', this.settings.left.maps);
                 document.getElementById('left-interval').value = this.settings.left.interval;
-                renderCheckboxes('right-maps-selection', this.settings.right.maps);
+                renderMapSettings('right-maps-selection', this.settings.right.maps);
                 document.getElementById('right-interval').value = this.settings.right.interval;
             },
 
@@ -210,84 +245,128 @@
                     return;
                 }
 
-                const carouselId = `${colName}-carousel`;
-                const mapData = colSettings.maps.map(key => ({ key, ...this.VENTUSKY_MAPS[key] }));
-                const primaryColor = mapData[0].color || 'gray-700';
-
-                let slidesHTML = '';
-                mapData.forEach((map, index) => {
-                    slidesHTML += this.createSlideHTML(map, index);
-                });
-                // Add a clone of the first slide for seamless looping if there's more than one slide
-                if (mapData.length > 1) {
-                    slidesHTML += this.createSlideHTML(mapData[0], mapData.length);
-                }
+                const mapData = colSettings.maps.map(mapConfig => ({ ...this.VENTUSKY_MAPS[mapConfig.key], ...mapConfig }));
 
                 container.innerHTML = `
-                    <div class="shadow-lg overflow-hidden relative h-full ring-8 ring-${primaryColor}/50">
-                        <div id="${carouselId}" class="relative w-full h-full transition-transform duration-700 ease-in-out">
-                            ${slidesHTML}
-                        </div>
+                    <div id="${colName}-map-container" class="shadow-lg overflow-hidden relative h-full border-8 border-transparent transition-colors duration-700">
+                        <div id="${colName}-frame-0" class="absolute inset-0 transition-opacity duration-700 ease-in-out" style="opacity: 0;"></div>
+                        <div id="${colName}-frame-1" class="absolute inset-0 transition-opacity duration-700 ease-in-out" style="opacity: 0;"></div>
                     </div>
                 `;
 
-                if (mapData.length > 1) {
-                    this.setupCarousel(carouselId, colSettings.interval * 1000, mapData.length);
+                if (mapData.length > 0) {
+                    this.setupCarousel(colName, colSettings.interval * 1000, mapData);
                 }
             },
 
-            createSlideHTML(map, index) {
+            createMapFrameHTML(map) {
                 const url = `https://embed.ventusky.com/?p=55.2;-4.0;5&l=${map.key}`;
                 return `
-                    <div class="absolute w-full h-full" style="top: ${index * 100}%;">
-                        <div class="map-container h-full">
-                            <iframe src="${url}" class="w-full h-full border-0" frameborder="0" title="${map.label}"></iframe>
-                        </div>
-                        <h2 class="absolute top-0 left-0 right-0 text-lg font-semibold text-white bg-${map.color}/50 p-2 text-center z-10">${map.label}</h2>
+                    <div class="map-container h-full">
+                        <iframe src="${url}" class="w-full h-full border-0" frameborder="0" title="${map.label}" onload="this.dataset.loaded = 'true'"></iframe>
                     </div>
+                    <h2 class="absolute top-0 left-0 right-0 text-lg font-semibold text-white bg-${map.color}/50 p-2 text-center z-10">${map.label}</h2>
                 `;
             },
 
-            setupCarousel(carouselId, interval, slideCount) {
-                const colName = carouselId.split('-')[0];
+            setupCarousel(colName, interval, mapData) {
                 if (this.carouselIntervals[colName]) {
-                    clearInterval(this.carouselIntervals[colName]);
+                    clearTimeout(this.carouselIntervals[colName]);
                 }
 
-                const carousel = document.getElementById(carouselId);
-                if (!carousel) return;
+                const mapContainer = document.getElementById(`${colName}-map-container`);
+                const frames = [
+                    document.getElementById(`${colName}-frame-0`),
+                    document.getElementById(`${colName}-frame-1`)
+                ];
+                
+                const showNextMap = (currentMapIndex, currentFrameIndex) => {
+                    const nextMapIndex = (currentMapIndex + 1) % mapData.length;
+                    const nextMap = mapData[nextMapIndex];
+                    const nextFrameIndex = 1 - currentFrameIndex;
+                    
+                    const currentFrame = frames[currentFrameIndex];
+                    const nextFrame = frames[nextFrameIndex];
 
-                let currentIndex = 0;
-                this.carouselIntervals[colName] = setInterval(() => {
-                    currentIndex++;
-                    carousel.style.transition = 'transform 0.7s ease-in-out';
-                    carousel.style.transform = `translateY(-${currentIndex * 100}%)`;
-                }, interval);
-
-                carousel.addEventListener('transitionend', () => {
-                    if (currentIndex >= slideCount) {
-                        carousel.style.transition = 'none';
-                        currentIndex = 0;
-                        carousel.style.transform = 'translateY(0%)';
-                        carousel.offsetHeight; // Force reflow
-                        carousel.style.transition = 'transform 0.7s ease-in-out';
+                    // Update border color
+                    if (mapContainer.dataset.currentColor) {
+                        mapContainer.classList.remove(`border-${mapContainer.dataset.currentColor}`);
                     }
-                });
+                    mapContainer.classList.add(`border-${nextMap.color}`);
+                    mapContainer.dataset.currentColor = nextMap.color;
+
+                    nextFrame.innerHTML = this.createMapFrameHTML(nextMap);
+                    const iframe = nextFrame.querySelector('iframe');
+
+                    const scheduleNext = () => {
+                        if (mapData.length <= 1) return;
+
+                        const holdTime = nextMap.holdTime;
+                        let nextInterval = interval;
+
+                        if (holdTime) {
+                            const parsedTime = parseInt(holdTime, 10);
+                            if (!isNaN(parsedTime)) {
+                                if (typeof holdTime === 'string' && (holdTime.startsWith('+') || holdTime.startsWith('-'))) {
+                                    nextInterval = interval + (parsedTime * 1000);
+                                } else {
+                                    nextInterval = parsedTime * 1000;
+                                }
+                            }
+                        }
+                        
+                        if (nextInterval < 5000) nextInterval = 5000;
+
+                        this.carouselIntervals[colName] = setTimeout(() => showNextMap(nextMapIndex, nextFrameIndex), nextInterval);
+                    };
+
+                    const transition = () => {
+                        nextFrame.style.opacity = 1;
+                        if (currentFrame) currentFrame.style.opacity = 0;
+                        
+                        setTimeout(() => {
+                            if (currentFrame) {
+                                currentFrame.innerHTML = '';
+                            }
+                        }, 700);
+
+                        scheduleNext();
+                    };
+
+                    if (iframe.dataset.loaded === 'true') {
+                        transition();
+                    } else {
+                        iframe.onload = transition;
+                    }
+                };
+
+                // Initial load
+                showNextMap(-1, 1);
             },
 
             setupEventListeners() {
                 document.getElementById('apply-settings-btn').addEventListener('click', () => {
-                    const getSelectedMaps = (containerId) => {
+                    const getMapsConfig = (containerId) => {
                         const maps = [];
-                        document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`).forEach(el => {
-                            maps.push(el.dataset.mapKey);
+                        document.querySelectorAll(`#${containerId} [data-map-key]`).forEach(div => {
+                            const checkbox = div.querySelector('input[type=checkbox]');
+                            if (checkbox.checked) {
+                                const key = div.dataset.mapKey;
+                                const holdTimeInput = div.querySelector('input[type=text]');
+                                const holdTime = holdTimeInput.value.trim();
+                                const mapConfig = { key };
+                                if (holdTime) {
+                                    mapConfig.holdTime = holdTime;
+                                }
+                                maps.push(mapConfig);
+                            }
                         });
                         return maps;
                     };
 
-                    this.settings.left.maps = getSelectedMaps('left-maps-selection');
+                    this.settings.left.maps = getMapsConfig('left-maps-selection');
                     this.settings.left.interval = document.getElementById('left-interval').value;
-                    this.settings.right.maps = getSelectedMaps('right-maps-selection');
+                    this.settings.right.maps = getMapsConfig('right-maps-selection');
                     this.settings.right.interval = document.getElementById('right-interval').value;
 
                     this.saveSettings();
