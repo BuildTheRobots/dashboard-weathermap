@@ -43,4 +43,12 @@ The UK Weather Warnings are sourced from the **Met Office**. The preferred API-b
 
 The tropospheric ducting forecast map is provided by William Hepburn's **DX Info Centre**. A huge thank you for this, as it appears to be the only publicly available service offering this specific forecast map.
 
-*Disclaimer: The method used to display this map (cropping a larger image) is a bit cheeky and may be against their terms of service. As this dashboard is for personal, non-commercial use to monitor conditions that affect my work, it is included here until a more officially supported alternative can be found.*
+*Disclaimer: The method used to display this map (cropping a larger image) is a bit cheeky and may be against their terms of service. As this dashboard is for personal, non-commercial use to monitor conditions that cause me headaches, it is included here until a more officially supported alternative can be found.*
+
+## Vibe to the max
+
+### Google Gemini
+
+There is an awful lot of vibe involved in the writing of this project. I hated writing HTML in the 90's, complicating matters with ECMA and css has not increased my enjoyment since. Not to underplay the amount of back and forth required to get to this point, but hot-damn, late 2025 LLMs are one hell of a drug. 
+
+*"And I, for one, welcome our new AI overlords. I'd like to remind them as a trusted network operator, I can be helpful in rounding up packets to quantise in their underground inference caves."*
